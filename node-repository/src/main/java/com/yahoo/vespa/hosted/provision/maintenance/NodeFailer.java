@@ -77,22 +77,6 @@ public class NodeFailer extends NodeRepositoryMaintainer {
         int throttledHostFailures = 0;
         int throttledNodeFailures = 0;
 
-        // Ready nodes
-        try (Mutex lock = nodeRepository().nodes().lockUnallocated()) {
-            for (FailingNode failing : findReadyFailingNodes()) {
-                attempts++;
-                if (throttle(failing.node())) {
-                    failures++;
-                    if (failing.node().type().isHost())
-                        throttledHostFailures++;
-                    else
-                        throttledNodeFailures++;
-                    continue;
-                }
-                nodeRepository().nodes().fail(failing.node().hostname(), Agent.NodeFailer, failing.reason());
-            }
-        }
-
         // Active nodes
         for (FailingNode failing : findActiveFailingNodes()) {
             attempts++;
@@ -114,22 +98,6 @@ public class NodeFailer extends NodeRepositoryMaintainer {
         metric.set(throttledHostFailuresMetric, throttledHostFailures, null);
         metric.set(throttledNodeFailuresMetric, throttledNodeFailures, null);
         return asSuccessFactor(attempts, failures);
-    }
-
-    private Collection<FailingNode> findReadyFailingNodes() {
-        Set<FailingNode> failingNodes = new HashSet<>();
-        for (Node node : nodeRepository().nodes().list(Node.State.ready)) {
-            Node hostNode = node.parentHostname().flatMap(parent -> nodeRepository().nodes().node(parent)).orElse(node);
-            List<String> failureReports = reasonsToFailHost(hostNode);
-            if (failureReports.size() > 0) {
-                if (hostNode.equals(node)) {
-                    failingNodes.add(new FailingNode(node, "Host has failure reports: " + failureReports));
-                } else {
-                    failingNodes.add(new FailingNode(node, "Parent (" + hostNode + ") has failure reports: " + failureReports));
-                }
-            }
-        }
-        return failingNodes;
     }
 
     private Collection<FailingNode> findActiveFailingNodes() {

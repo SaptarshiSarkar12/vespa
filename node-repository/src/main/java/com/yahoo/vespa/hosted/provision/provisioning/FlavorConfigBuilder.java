@@ -85,7 +85,7 @@ public class FlavorConfigBuilder {
             else if (flavorName.equals("arm64"))
                 flavorConfigBuilder.addFlavor(flavorName,2.,  30., 20., 3, Flavor.Type.BARE_METAL, Architecture.arm64);
             else
-                flavorConfigBuilder.addFlavor(flavorName, 1.,  30., 20., 3, Flavor.Type.BARE_METAL);
+                flavorConfigBuilder.addFlavor(flavorName, 1.,  30., 200., 3, Flavor.Type.BARE_METAL);
         }
         return new NodeFlavors(flavorConfigBuilder.build());
     }

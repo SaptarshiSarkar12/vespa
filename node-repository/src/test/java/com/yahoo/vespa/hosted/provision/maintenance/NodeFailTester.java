@@ -141,11 +141,13 @@ public class NodeFailTester {
         NodeFailTester tester = new NodeFailTester();
 
         int nodesPerHost = 3;
-        List<Node> hosts = tester.createHostNodes(numberOfHosts);
-        for (int i = 0; i < hosts.size(); i++) {
-            tester.createReadyNodes(nodesPerHost, i * nodesPerHost, Optional.of("parent" + (i + 1)),
-                                    new NodeResources(1, 4, 100, 0.3), NodeType.tenant);
-        }
+        tester.tester.makeReadyNodes(numberOfHosts, new NodeResources(4, 16, 400, 10), NodeType.host, 8);
+//        tester.createAndActivateHosts(numberOfHosts, new NodeResources(4, 4, 400, 10));
+//        List<Node> hosts = tester.createHostNodes(numberOfHosts);
+//        for (int i = 0; i < hosts.size(); i++) {
+//            tester.createReadyNodes(nodesPerHost, i * nodesPerHost, Optional.of("parent" + (i + 1)),
+//                                    new NodeResources(1, 4, 100, 0.3), NodeType.tenant);
+//        }
 
         // Create applications
         ClusterSpec clusterNodeAdminApp = ClusterSpec.request(ClusterSpec.Type.container, ClusterSpec.Id.from("node-admin")).vespaVersion("6.42").build();
@@ -230,7 +232,7 @@ public class NodeFailTester {
     }
 
     public NodeHealthTracker createUpdater() {
-        return new NodeHealthTracker(hostLivenessTracker, serviceMonitor, nodeRepository, Duration.ofMinutes(5), metric);
+        return new NodeHealthTracker(serviceMonitor, nodeRepository, Duration.ofMinutes(5), metric);
     }
 
     public void allNodesMakeAConfigRequestExcept(Node ... deadNodeArray) {
@@ -246,10 +248,6 @@ public class NodeFailTester {
 
     public Clock clock() { return clock; }
 
-    public List<Node> createReadyNodes(int count) {
-        return createReadyNodes(count, 0);
-    }
-
     public List<Node> createReadyNodes(int count, NodeResources resources) {
         return createReadyNodes(count, 0, resources);
     }
@@ -258,20 +256,8 @@ public class NodeFailTester {
         return createReadyNodes(count, 0, Optional.empty(), hostFlavors.getFlavorOrThrow("default"), nodeType);
     }
 
-    public List<Node> createReadyNodes(int count, int startIndex) {
-        return createReadyNodes(count, startIndex, "default");
-    }
-
-    public List<Node> createReadyNodes(int count, int startIndex, String flavor) {
-        return createReadyNodes(count, startIndex, Optional.empty(), hostFlavors.getFlavorOrThrow(flavor), NodeType.tenant);
-    }
-
     public List<Node> createReadyNodes(int count, int startIndex, NodeResources resources) {
         return createReadyNodes(count, startIndex, Optional.empty(), new Flavor(resources), NodeType.tenant);
-    }
-
-    private List<Node> createReadyNodes(int count, int startIndex, Optional<String> parentHostname, NodeResources resources, NodeType nodeType) {
-        return createReadyNodes(count, startIndex, parentHostname, new Flavor(resources), nodeType);
     }
 
     private List<Node> createReadyNodes(int count, int startIndex, Optional<String> parentHostname, Flavor flavor, NodeType nodeType) {
