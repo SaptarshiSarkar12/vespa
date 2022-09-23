@@ -30,7 +30,7 @@ func main() {
 	switch action {
 	case "export-env":
 		vespa.ExportDefaultEnvToSh()
-	case "security-env":
+	case "security-env", "vespa-security-env":
 		vespa.ExportSecurityEnvToSh()
 	case "ipv6-only":
 		if vespa.HasOnlyIpV6() {
