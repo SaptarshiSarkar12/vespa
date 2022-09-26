@@ -128,7 +128,7 @@ private:
     class ThreadState {
     private:
         uint32_t _thread_id;
-        mutable std::atomic_flag _lock = ATOMIC_FLAG_INIT;
+        mutable std::atomic_flag _lock;
         vespalib::Stash _stash;
         const LogEntry * _list;
     public:
@@ -149,12 +149,16 @@ private:
     static thread_local ThreadState *_thread_state;
 
     static void init_thread_state() noexcept;
+#ifdef __APPLE__
+    static ThreadState &thread_state() noexcept;
+#else
     static ThreadState &thread_state() noexcept {
         if (__builtin_expect((_thread_state == nullptr), false)) {
             init_thread_state();
         }
         return *_thread_state;
     }
+#endif
 
     std::mutex _lock;
     std::vector<ThreadState::UP> _state_list;

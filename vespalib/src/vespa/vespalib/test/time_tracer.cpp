@@ -156,6 +156,15 @@ TimeTracer::extract_impl(const Extractor &extractor)
 
 TimeTracer::~TimeTracer() = default;
 
+TimeTracer::ThreadState&
+TimeTracer::thread_state() noexcept
+{
+    if (__builtin_expect((_thread_state == nullptr), false)) {
+        init_thread_state();
+    }
+    return *_thread_state;
+}
+
 //-----------------------------------------------------------------------------
 
 } // namespace vespalib::test

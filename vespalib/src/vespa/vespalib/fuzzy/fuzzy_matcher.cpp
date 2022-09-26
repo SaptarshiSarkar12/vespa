@@ -43,7 +43,7 @@ std::span<const uint32_t> vespalib::FuzzyMatcher::get_prefix(const std::vector<u
         return {};
     } else {
         uint32_t actualPrefixLength = std::min(prefixLength, static_cast<uint32_t>(termCodepoints.size()));
-        return {termCodepoints.begin(), termCodepoints.begin() + actualPrefixLength};
+        return {termCodepoints.data(), termCodepoints.data() + actualPrefixLength};
     }
 }
 
@@ -52,7 +52,7 @@ std::span<const uint32_t> vespalib::FuzzyMatcher::get_suffix(const std::vector<u
         return {};
     } else {
         uint32_t actualPrefixLength = std::min(prefixLength, static_cast<uint32_t>(termCodepoints.size()));
-        return {termCodepoints.begin() + actualPrefixLength, termCodepoints.end()};
+        return {termCodepoints.data() + actualPrefixLength, termCodepoints.data() + termCodepoints.size()};
     }
 }
 
